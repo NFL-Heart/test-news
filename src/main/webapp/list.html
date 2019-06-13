@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+
+
+    </style>
+    <link href="css/bootstrap.min.css"/>
+    <script type="text/javascript" src="js/jquery-1.12.2.min.js"></script>
+</head>
+<body>
+<div style="text-align: center">
+输入关键字<input id="keyword" type="text" name="keyword" />
+<button onclick="searchInfo(1)">检索</button>
+<br />
+<table width="800" border="1px" class="table table-bordered" style="text-align: center;margin: auto">
+    <thead>
+    <tr><h1>新闻列表</h1></tr>
+        <tr>
+            <th>新闻编号</th>
+            <th>新闻标题</th>
+            <th>新闻摘要</th>
+            <th>作者</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td><a href="#">aaaa</a></td>
+            <td>java</td>
+            <td>2010</td>
+        </tr>
+
+        <tr>
+
+            <td colspan="8"><a href="javascript:searchInfo(1)">首页</a>|
+                <a href="javascript:searchInfo(2)">上一页</a>|
+                <a href="javascript:searchInfo(2)">下一页</a>|
+                <a href="javascript:searchInfo(10)">末页</a>
+                第1页/共10页
+                （10条记录）</td>
+        </tr>
+    </tbody>
+
+</table>
+</div>
+
+<script type="text/javascript">
+    $(function(){
+        searchInfo(1);
+    })
+
+</script>
+
+<script type="text/javascript">
+    function searchInfo(page){
+        $.ajax({
+            type:"get",
+            url:"news/list.do",
+            data:{page:page,limit:5, keyword:$("#keyword").val()},
+            dataType:"json",
+            success:function(data){
+                if(data.code == 1){
+                    $("tbody").empty();
+                    var infos = data.info.list;
+                    for(var i = 0; i < infos.length; i++){
+                        var html = '<tr>\n' +
+                            '            <td>' + infos[i].nid + '</td>\n' +
+                            '            <td>' + infos[i].title + '</a></td>\n' +
+                            '            <td>' + infos[i].content + '</td>\n' +
+                            '            <td>' + infos[i].author + '</td>\n' +
+                            '            <td>' + infos[i].creatTime + '</td>\n' +
+                            '            <td>' +
+                            '            <a href="javascript:comments(' + infos[i].nid + ')">查看评论</a>&nbsp;\n' +
+                            '            <a href="javascript:add(' + infos[i].nid + ')">评论</a>&nbsp;\n' +
+                            '            <a href="#" onclick="delInfo('+infos[i].nid+');return false;"> 删除</a>'+
+                            '          </td>\n' +
+                            '        </tr>';
+                        $("tbody").append($(html));
+                    }
+                    var html = '<tr><td colspan="8"><a href="javascript:searchInfo(1)">首页</a>|\n' +
+                        '                <a href="javascript:searchInfo(' + (data.info.currentPage - 1) + ')">上一页</a>|\n' +
+                        '                <a href="javascript:searchInfo(' + (data.info.currentPage + 1) + ')">下一页</a>|\n' +
+                        '                <a href="javascript:searchInfo(' + data.info.totalPage + ')">末页</a>\n' +
+                        '                第' + data.info.currentPage + '页/共' + data.info.totalPage + '页\n' +
+                        '                （' + data.info.count + '条记录）</td></tr>';
+                    $("tbody").append($(html));
+                }
+            }
+
+
+        })
+    }
+
+</script>
+<script type="text/javascript">
+    function comments(nid) {
+        alert(nid)
+        location.href="commentList.jsp?id="+nid;
+    }
+</script>
+<script type="text/javascript">
+    function add(nid) {
+        alert(nid)
+        location.href="add.jsp?id="+nid;
+    }
+</script>
+
+<script type="text/javascript">
+    function delInfo(nid){
+        $.ajax({
+            type:"get",
+            url:"news/delete.do",
+            data:{nid:nid},
+            dataType:"json",
+            success:function(data){
+                if(data.code == 1){
+                    searchInfo(1);
+                }else{
+                    alert(data.info);
+                }
+            }
+        })
+    }
+</script>
+
+
+</body>
+</html>
